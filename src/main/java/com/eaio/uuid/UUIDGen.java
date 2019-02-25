@@ -27,8 +27,6 @@
  */
 package com.eaio.uuid;
 
-import static com.eaio.util.Resource.close;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -81,6 +79,16 @@ public final class UUIDGen {
      */
     private static long clockSeqAndNode = 0x8000000000000000L;
 
+    private static void close(AutoCloseable... closeables) {
+        for (AutoCloseable c : closeables) {
+            try {
+                c.close();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+    }
+
     static {
 
         try {
@@ -110,7 +118,6 @@ public final class UUIDGen {
         if (macAddress == null) {
 
             Process p = null;
-            BufferedReader in = null;
 
             try {
                 String osname = System.getProperty("os.name", ""), osver = System.getProperty("os.version", "");
@@ -146,14 +153,15 @@ public final class UUIDGen {
                 }
 
                 if (p != null) {
-                    in = new BufferedReader(new InputStreamReader(
-                            p.getInputStream()), 128);
-                    String l = null;
-                    while ((l = in.readLine()) != null) {
-                        macAddress = MACAddressParser.parse(l);
-                        if (macAddress != null
-                                && Hex.parseShort(macAddress) != 0xff) {
-                            break;
+                    try(BufferedReader in = new BufferedReader(new InputStreamReader(
+                            p.getInputStream()), 128)) {
+                        String l = null;
+                        while ((l = in.readLine()) != null) {
+                            macAddress = MACAddressParser.parse(l);
+                            if (macAddress != null
+                                    && Hex.parseShort(macAddress) != 0xff) {
+                                break;
+                            }
                         }
                     }
                 }
@@ -167,7 +175,7 @@ public final class UUIDGen {
             }
             finally {
                 if (p != null) {
-                    close(in, p.getErrorStream(), p.getOutputStream());
+                    close(p.getErrorStream(), p.getOutputStream());
                     p.destroy();
                 }
             }
