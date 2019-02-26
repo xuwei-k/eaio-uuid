@@ -4,7 +4,7 @@ name := "eaio-uuid"
 
 organization := "com.github.xuwei-k"
 
-javacOptions in compile ++= Seq("-target", "8", "-source", "8")
+javacOptions in compile ++= Seq("-target", "8", "-source", "8", "-Xlint:deprecation")
 
 javacOptions in (Compile, doc) ++= Seq("-locale", "en_US")
 
