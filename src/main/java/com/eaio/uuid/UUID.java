@@ -122,8 +122,8 @@ public class UUID implements Comparable<UUID>, Externalizable, Cloneable {
      * @param t the other UUID, may not be <code>null</code>
      * @return a value &lt; 0, 0 or a value &gt; 0
      * @see java.lang.Comparable#compareTo(java.lang.Object)
-     * @throws ClassCastException
      */
+    @Override
     public int compareTo(UUID t) {
         if (this == t) {
             return 0;
